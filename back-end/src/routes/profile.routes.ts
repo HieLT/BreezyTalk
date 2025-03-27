@@ -1,11 +1,13 @@
 import express from 'express';
-import { auth } from '../middleware/auth.middleware';
 import profileController from '../controllers/profile.controller';
+import { authentication } from '../middleware/auth.middleware';
 
 const profileRouter = express.Router();
 
-profileRouter.get('/', auth, profileController.getProfile);
+profileRouter.use(authentication);
 
-profileRouter.get('/search', auth, profileController.searchUsers);
+profileRouter.get('/', profileController.getProfile);
+
+profileRouter.get('/search', profileController.searchUsers);
 
 export default profileRouter; 

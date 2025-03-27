@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import userRepository from '../repositories/user.repository';
-import { AuthRequest } from '../types';
+import { AuthRequest } from '../types/base.types';
 
 const JWT_SECRET=  process.env.JWT_SECRET as string;
 const JWT_EXPIRE = '1h';

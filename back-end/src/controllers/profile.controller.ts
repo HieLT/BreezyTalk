@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import userRepository from '../repositories/user.repository';
-import { AuthRequest } from '../types';
+import { AuthRequest } from '../types/base.types';
 
 class ProfileController {
   async getProfile(req: AuthRequest, res: Response): Promise<void> {

@@ -1,26 +1,56 @@
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { AuthRequest } from '../types';
-const JWT_SECRET = process.env.JWT_SECRET as string;
+import { AuthRequest } from '../types/base.types';
 
-export const auth = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+const JWT_SECRET = process.env.JWT_SECRET as string;
+export const verifyToken = async (token: string): Promise<{ userId: string } | null> => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    console.log('JWT_SECRET',JWT_SECRET);
-    
     if (!token) {
+      return null;
+    }
+
+    const cleanToken = token.replace('Bearer ', '');
+    const decoded = jwt.verify(cleanToken, JWT_SECRET) as { userId: string };
+    return decoded;
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return null;
+  }
+};
+
+// REST API middleware
+export const authentication = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const token = req.header('Authorization');
+    const decoded = await verifyToken(token || '');
+    
+    if (!decoded) {
       res.status(401).json({ message: 'No authentication token, access denied' });
       return;
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-    console.log('decoded',decoded);
-    
     req.user = { userId: decoded.userId };
+    if (!decoded.userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
     next();
   } catch (error) {
-    console.log('error',error);
-    
+    console.error('REST authentication error:', error);
     res.status(401).json({ message: 'Token is not valid' });
+  }
+};
+
+// WebSocket authentication
+export const wsAuthentication = async (token: string): Promise<{ userId: string } | null> => {
+  try {
+    const decoded = await verifyToken(token);
+    if (!decoded) {
+      throw new Error('Invalid token');
+    }
+    return decoded;
+  } catch (error) {
+    console.error('WebSocket authentication error:', error);
+    return null;
   }
 }; 

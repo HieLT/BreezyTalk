@@ -1,24 +1,34 @@
 import mongoose from 'mongoose';
-import { IMessage } from '../types';
+import { IMessage } from '../types/message.types';
 
 const messageSchema = new mongoose.Schema({
-  sender: {
+  senderId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  receiver: {
+  conversationId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Conversation',
+    required: true,
+    mutable: false
+  },
+  type: {
+    type: String,
+    enum: ['text', 'image', 'video', 'audio', 'file'],
     required: true
   },
   content: {
     type: String,
     required: true
   },
-  read: {
-    type: Boolean,
-    default: false
+  seen_at: {
+    type: Date,
+    default: null
+  },
+  deleted_at: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

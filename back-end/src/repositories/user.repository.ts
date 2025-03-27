@@ -1,5 +1,5 @@
 import User from '../models/user.model';
-import { IUser } from '../types';
+import { IUser } from '../types/user.types';
 
 interface UserData {
   email: string;
@@ -10,7 +10,8 @@ interface UserData {
 
 class UserRepository {
   async create(userData: UserData): Promise<IUser> {
-    return await User.create(userData);
+    const user = new User(userData);
+    return await user.save();
   }
 
   async findByEmail(email: string): Promise<IUser | null> {
@@ -18,30 +19,41 @@ class UserRepository {
   }
 
   async findById(id: string): Promise<IUser | null> {
-    return await User.findById(id).select('-password');
+    return await User.findById(id)
+      .select('-password')
+      .lean();
   }
 
-  async findAll(): Promise<IUser[]> {
-    return await User.find().select('-password');
+  async getAll(): Promise<IUser[]> {
+    return await User.find()
+      .select('-password')
+      .lean();
   }
 
-  async update(id: string, updateData: Partial<UserData>): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
+  async update(id: string, updateData: Partial<IUser>): Promise<IUser | null> {
+    return await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    )
+    .select('-password')
+    .lean();
   }
 
   async delete(id: string): Promise<IUser | null> {
-    return await User.findByIdAndDelete(id);
+    return await User.findByIdAndDelete(id).lean();
   }
 
   async searchUsers(query: string): Promise<IUser[]> {
+    const searchRegex = new RegExp(query, 'i');
     return await User.find({
       $or: [
-        { username: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } }
+        { username: searchRegex },
+        { email: searchRegex }
       ]
     })
     .select('-password')
-    .limit(10);
+    .lean();
   }
 }
 

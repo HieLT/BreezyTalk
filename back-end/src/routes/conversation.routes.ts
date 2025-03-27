@@ -1,13 +1,12 @@
-import express from 'express';
-import { auth } from '../middleware/auth.middleware';
+import { Router } from 'express';
+import { authentication } from '../middleware/auth.middleware';
 import conversationController from '../controllers/conversation.controller';
 
-const router = express.Router();
+const conversationRouter = Router();
 
-// Get all conversations for the authenticated user
-router.get('/', auth, conversationController.getConversations);
+conversationRouter.use(authentication);
 
-// Get conversation with a specific user
-router.get('/:userId', auth, conversationController.getConversation);
+conversationRouter.post('/', conversationController.createConversation);
 
-export default router; 
+
+export default conversationRouter; 

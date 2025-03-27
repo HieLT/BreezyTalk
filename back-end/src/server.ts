@@ -12,12 +12,10 @@ dotenv.config();
 const app: Express = express();
 const httpServer = createServer(app);
 
-// Initialize socket service
 new SocketService(httpServer);
 
-// Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 app.use(express.json());
